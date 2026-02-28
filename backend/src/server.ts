@@ -24,8 +24,14 @@ app.use((req, res, next) => {
 app.use("/api/user", userRoutes);
 app.use("/api/protocol", protocolRoutes);
 app.use("/api/status", statusRoutes);
+import { priceService } from "./services/shared/priceService.js";
 app.get("/api/prices", async (req, res) => {
-    res.redirect("/api/status/prices");
+    try {
+        const prices = await priceService.getAllPrices();
+        res.json({ success: true, data: prices });
+    } catch (err: any) {
+        res.status(500).json({ success: false, error: err.message });
+    }
 });
 
 // Health check
