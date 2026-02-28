@@ -1,7 +1,7 @@
 import "dotenv/config";
-
 import express from "express";
 import cors from "cors";
+import { priceService } from "./services/shared/priceService.js";
 import userRoutes from "./routes/user.routes.js";
 import protocolRoutes from "./routes/protocol.routes.js";
 import statusRoutes from "./routes/status.routes.js";
@@ -9,8 +9,14 @@ import statusRoutes from "./routes/status.routes.js";
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware
-app.use(cors());
+// ✅ CORS — allow frontend on port 3000 (and any other local origin)
+app.use(cors({
+    origin: ["http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "x-api-key"],
+    credentials: true,
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -24,7 +30,8 @@ app.use((req, res, next) => {
 app.use("/api/user", userRoutes);
 app.use("/api/protocol", protocolRoutes);
 app.use("/api/status", statusRoutes);
-import { priceService } from "./services/shared/priceService.js";
+
+// ✅ Flat /api/prices endpoint (no redirect — direct response)
 app.get("/api/prices", async (req, res) => {
     try {
         const prices = await priceService.getAllPrices();
@@ -34,7 +41,7 @@ app.get("/api/prices", async (req, res) => {
     }
 });
 
-// Health check
+// ✅ Health check
 app.get("/api/health", (req, res) => {
     res.json({
         status: "ok",
