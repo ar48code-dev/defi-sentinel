@@ -8,9 +8,10 @@ interface PriceCardProps {
     price: number;
     change?: number;
     timestamp: number;
+    source?: string;
 }
 
-export default function PriceCard({ pair, price, change = 0, timestamp }: PriceCardProps) {
+export default function PriceCard({ pair, price, change = 0, timestamp, source }: PriceCardProps) {
     const isPositive = change >= 0;
 
     const [timeString, setTimeString] = React.useState<string>("");
@@ -47,11 +48,16 @@ export default function PriceCard({ pair, price, change = 0, timestamp }: PriceC
                     <Clock className="h-3 w-3" />
                     {timeString || "..."}
                 </div>
-                <div className="h-1.5 w-24 overflow-hidden rounded-full bg-white/5">
-                    <div
-                        className={`h-full rounded-full ${isPositive ? "bg-emerald-500" : "bg-rose-500"}`}
-                        style={{ width: `${Math.min(100, Math.abs(change) * 20)}%` }}
-                    ></div>
+                <div className="flex items-center gap-2">
+                    <span className={`text-[9px] font-bold uppercase ${source === "blockchain" ? "text-emerald-500/50" : "text-amber-500/50"}`}>
+                        {source || "..."}
+                    </span>
+                    <div className="h-1.5 w-16 overflow-hidden rounded-full bg-white/5">
+                        <div
+                            className={`h-full rounded-full ${isPositive ? "bg-emerald-500" : "bg-rose-500"}`}
+                            style={{ width: `${Math.min(100, Math.abs(change) * 20)}%` }}
+                        ></div>
+                    </div>
                 </div>
             </div>
         </motion.div>

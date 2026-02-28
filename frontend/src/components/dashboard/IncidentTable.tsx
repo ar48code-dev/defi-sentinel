@@ -18,7 +18,15 @@ const levelColors = {
     critical: "text-red-400 bg-red-400/10 border-red-400/20",
 };
 
-export default function IncidentTable({ incidents }: { incidents: Incident[] }) {
+const LocalizedTime = ({ timestamp }: { timestamp: number }) => {
+    const [time, setTime] = React.useState<string>("");
+    React.useEffect(() => {
+        setTime(new Date(timestamp).toLocaleTimeString());
+    }, [timestamp]);
+    return <>{time || "..."}</>;
+};
+
+export default function IncidentTable({ incidents }: { incidents: (Incident & { source?: string })[] }) {
     return (
         <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm">
             <div className="flex items-center justify-between border-b border-white/10 px-6 py-4">
@@ -26,9 +34,11 @@ export default function IncidentTable({ incidents }: { incidents: Incident[] }) 
                     <AlertTriangle className="h-5 w-5 text-amber-500" />
                     Live Threat Feed
                 </h3>
-                <button className="text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors">
-                    View All
-                </button>
+                <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest bg-white/5 px-2 py-1 rounded">
+                        Real-time Data Active
+                    </span>
+                </div>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full text-left">
@@ -38,7 +48,7 @@ export default function IncidentTable({ incidents }: { incidents: Incident[] }) 
                             <th className="px-6 py-4 font-black">Protocol</th>
                             <th className="px-6 py-4 font-black">Description</th>
                             <th className="px-6 py-4 font-black">Threat Level</th>
-                            <th className="px-6 py-4 font-black">Action</th>
+                            <th className="px-6 py-4 font-black">Source</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
@@ -52,7 +62,7 @@ export default function IncidentTable({ incidents }: { incidents: Incident[] }) 
                             incidents.map((incident) => (
                                 <tr key={incident.id} className="group hover:bg-white/[0.02] transition-colors">
                                     <td className="px-6 py-4 text-xs font-mono text-white/50">
-                                        {new Date(incident.timestamp).toLocaleTimeString()}
+                                        <LocalizedTime timestamp={incident.timestamp} />
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-2">
@@ -71,9 +81,10 @@ export default function IncidentTable({ incidents }: { incidents: Incident[] }) 
                                         </span>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <button className="rounded-lg p-1 text-white/30 hover:bg-white/5 hover:text-white transition-all">
-                                            <MoreHorizontal className="h-5 w-5" />
-                                        </button>
+                                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${incident.source === "blockchain" ? "bg-emerald-500/10 text-emerald-500" : "bg-amber-500/10 text-amber-500"
+                                            }`}>
+                                            {incident.source || "Unknown"}
+                                        </span>
                                     </td>
                                 </tr>
                             ))

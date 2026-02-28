@@ -6,8 +6,8 @@ export interface PriceData {
     pair: string;
     price: number;
     decimals: number;
-    timestamp: number;
     roundId: string;
+    source: "blockchain" | "fallback";
 }
 
 const PRICE_FEEDS: Record<string, string> = {
@@ -50,6 +50,7 @@ export class PriceService {
                 decimals,
                 timestamp: Number(updatedAt),
                 roundId: roundId.toString(),
+                source: "blockchain",
             };
 
             this.cache.set(pair, { data, expiresAt: Date.now() + this.CACHE_TTL });
@@ -68,7 +69,8 @@ export class PriceService {
                 price: mockPrices[pair] || 0,
                 decimals: 8,
                 timestamp: Math.floor(Date.now() / 1000),
-                roundId: "0"
+                roundId: "0",
+                source: "fallback"
             };
         }
     }

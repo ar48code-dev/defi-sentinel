@@ -102,6 +102,7 @@ export class ProtocolService {
                     threatLevel: this.mapThreatLevel(Number(i.threatLevel)),
                     status: "mitigated",
                     protocol: "Aave V3",
+                    source: "blockchain",
                 }));
             }
         } catch (err) {
@@ -132,7 +133,8 @@ export class ProtocolService {
                 protocol: "Uniswap V3",
                 description: "Flash loan activity detected",
                 threatLevel: "low",
-                status: "mitigated"
+                status: "mitigated",
+                source: "fallback"
             }
         ];
     }
