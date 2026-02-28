@@ -41,46 +41,42 @@ Built for the **Chainlink Constellation Hackathon**, DeFi-Sentinel leverages Cha
 
 ---
 
-## 🛠️ Setup & Installation
+## 🚀 Quick Start (For Judges & Testers)
 
-### 1. Requirements
-- Node.js v18+
-- npm or yarn
+You can now set up and launch the entire project (Frontend + Backend) with **ONE command**.
 
-### 2. Configuration (`.env`)
-Create a `.env` file in the root directory (refer to `.env.example`):
+### 1a. Clone & Launch (Recommended)
+```bash
+git clone <your-repo-url>
+cd defi-sentinel
+chmod +x *.sh
+./start.sh
+```
+*`start.sh` is intelligent: it will automatically install dependencies, check your `.env`, start both servers, and **open the dashboard in your browser**.*
+
+---
+
+### 1b. Configuration (Optional)
+If you want to test live notifications or specific Chainlink functions, open the `.env` file and add your keys:
 ```env
-# RPC & Wallet
 SEPOLIA_RPC_URL=your_alchemy_url
 PRIVATE_KEY=your_wallet_private_key
-
-# Contract Addresses (already deployed on Sepolia)
-SENTINEL_CORE_ADDRESS=0xa9D6084EE79142526121899B59D0b774A7F583d1
-FORENSICS_LOGGER_ADDRESS=0x83D71737B6499B6f9C0e68F47f9B7a08d2D3AC91
-AUTO_PROTECTOR_ADDRESS=0x3b29D86d5f9F755a17BfA04eD62ab01316C1F0cb
-
-# Notifications
-SENDGRID_API_KEY=your_sendgrid_key
 TELEGRAM_BOT_TOKEN=your_bot_token
+SENDGRID_API_KEY=your_sendgrid_key
 ```
 
-### 3. Running Locally
+### 1c. Manual Installation
+If you prefer to install components individually:
 
 **Backend:**
 ```bash
-cd backend
-npm install
-npm run dev
+cd backend && npm install && npm run dev
 ```
 
 **Frontend:**
 ```bash
-cd frontend
-npm install
-npm run dev
+cd frontend && npm install && npm run dev
 ```
-
-The dashboard will be available at `http://localhost:3000`.
 
 ---
 
