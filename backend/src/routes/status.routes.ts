@@ -47,4 +47,27 @@ router.get("/incidents", async (req: Request, res: Response) => {
     }
 });
 
+// POST /api/status/config — Update environment variables in memory (for demo convenience)
+router.post("/config", async (req: Request, res: Response) => {
+    const { SEPOLIA_RPC_URL, PRIVATE_KEY, TELEGRAM_BOT_TOKEN, SENDGRID_API_KEY } = req.body;
+
+    if (SEPOLIA_RPC_URL) process.env.SEPOLIA_RPC_URL = SEPOLIA_RPC_URL;
+    if (PRIVATE_KEY) process.env.PRIVATE_KEY = PRIVATE_KEY;
+    if (TELEGRAM_BOT_TOKEN) process.env.TELEGRAM_BOT_TOKEN = TELEGRAM_BOT_TOKEN;
+    if (SENDGRID_API_KEY) process.env.SENDGRID_API_KEY = SENDGRID_API_KEY;
+
+    console.log("[Config] Applied temporary configuration updates from UI");
+
+    res.json({
+        success: true,
+        message: "Configuration applied to current session!",
+        activeKeys: {
+            rpc: !!process.env.SEPOLIA_RPC_URL,
+            pk: !!process.env.PRIVATE_KEY,
+            telegram: !!process.env.TELEGRAM_BOT_TOKEN,
+            sendgrid: !!process.env.SENDGRID_API_KEY
+        }
+    });
+});
+
 export default router;

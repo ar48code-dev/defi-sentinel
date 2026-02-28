@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import PriceCard from "@/components/dashboard/PriceCard";
 import IncidentTable from "@/components/dashboard/IncidentTable";
+import ConfigModal from "@/components/dashboard/ConfigModal";
 import { Shield, Activity, Lock, Zap, RefreshCw, AlertTriangle, Search, Bell, Settings } from "lucide-react";
 import { fetchPrices, fetchIncidents, fetchHealth } from "@/lib/api/backend";
 
@@ -21,6 +22,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isWalletConnected, setIsWalletConnected] = useState(false);
+  const [isConfigOpen, setIsConfigOpen] = useState(false);
 
   const loadData = async () => {
     setLoading(true);
@@ -72,6 +74,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#050505] text-white selection:bg-indigo-500/30">
+      <ConfigModal isOpen={isConfigOpen} onClose={() => setIsConfigOpen(false)} />
+
       {/* Integrated Interactive Navbar */}
       <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/60 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -101,15 +105,18 @@ export default function Home() {
             <button className="relative hidden rounded-full p-2 text-white/30 hover:bg-white/5 hover:text-white transition-colors sm:block">
               <Bell className="h-5 w-5" />
             </button>
-            <button className="rounded-full p-2 text-white/30 hover:bg-white/5 hover:text-white transition-colors">
+            <button
+              onClick={() => setIsConfigOpen(true)}
+              className="rounded-full p-2 text-white/30 hover:bg-white/5 hover:text-white transition-colors"
+            >
               <Settings className="h-5 w-5" />
             </button>
             <div className="h-8 w-px bg-white/10 mx-1 sm:mx-0"></div>
             <button
               onClick={() => setIsWalletConnected(!isWalletConnected)}
               className={`rounded-full px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-black transition-all active:scale-95 ${isWalletConnected
-                  ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500/20"
-                  : "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700"
+                ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500/20"
+                : "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700"
                 }`}
             >
               {isWalletConnected ? "0x14...0e28" : "Connect Wallet"}

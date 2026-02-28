@@ -47,7 +47,7 @@ You can now set up and launch the entire project (Frontend + Backend) with **ONE
 
 ### 1a. Clone & Launch (Recommended)
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/ar48code-dev/defi-sentinel.git
 cd defi-sentinel
 chmod +x *.sh
 ./start.sh
@@ -56,8 +56,13 @@ chmod +x *.sh
 
 ---
 
-### 1b. Configuration (Optional)
-If you want to test live notifications or specific Chainlink functions, open the `.env` file and add your keys:
+### 1b. Configuration (2 Ways)
+
+**Option A: Quick Web Config (Recommended for Demo)**
+Once the dashboard opens, click the **Settings (⚙️)** icon in the top right. You can paste your keys directly into the UI. These will be applied to the current session immediately WITHOUT editing files.
+
+**Option B: Manual .env**  
+Open the `.env` file and add your keys:
 ```env
 SEPOLIA_RPC_URL=your_alchemy_url
 PRIVATE_KEY=your_wallet_private_key
