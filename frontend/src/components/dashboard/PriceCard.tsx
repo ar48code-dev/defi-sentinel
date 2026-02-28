@@ -13,6 +13,12 @@ interface PriceCardProps {
 export default function PriceCard({ pair, price, change = 0, timestamp }: PriceCardProps) {
     const isPositive = change >= 0;
 
+    const [timeString, setTimeString] = React.useState<string>("");
+
+    React.useEffect(() => {
+        setTimeString(new Date(timestamp * 1000).toLocaleTimeString());
+    }, [timestamp]);
+
     return (
         <motion.div
             whileHover={{ y: -4 }}
@@ -39,7 +45,7 @@ export default function PriceCard({ pair, price, change = 0, timestamp }: PriceC
             <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-4">
                 <div className="flex items-center gap-1 text-[10px] text-white/30">
                     <Clock className="h-3 w-3" />
-                    {new Date(timestamp * 1000).toLocaleTimeString()}
+                    {timeString || "..."}
                 </div>
                 <div className="h-1.5 w-24 overflow-hidden rounded-full bg-white/5">
                     <div

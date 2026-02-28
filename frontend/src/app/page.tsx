@@ -11,7 +11,7 @@ export default function Home() {
   const [incidents, setIncidents] = useState<any[]>([]);
   const [health, setHealth] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
   const loadData = async () => {
     try {
@@ -57,7 +57,7 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium text-white/60">
               <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
-              Last updated: {lastUpdate.toLocaleTimeString()}
+              Last updated: {lastUpdate ? lastUpdate.toLocaleTimeString() : "..."}
             </div>
           </div>
         </div>
