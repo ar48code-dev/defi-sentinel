@@ -6,6 +6,7 @@ export interface PriceData {
     pair: string;
     price: number;
     decimals: number;
+    timestamp: number;
     roundId: string;
     source: "blockchain" | "fallback";
 }
@@ -41,7 +42,7 @@ export class PriceService {
             const feed = new ethers.Contract(feedAddress, CHAINLINK_PRICE_FEED_ABI, this.provider);
 
             const [roundId, answer, , updatedAt] = await feed.latestRoundData();
-            const decimals: number = await feed.decimals();
+            const decimals = Number(await feed.decimals());
             const price = Number(answer) / Math.pow(10, decimals);
 
             const data: PriceData = {
@@ -55,8 +56,8 @@ export class PriceService {
 
             this.cache.set(pair, { data, expiresAt: Date.now() + this.CACHE_TTL });
             return data;
-        } catch (err) {
-            console.warn(`Failed to fetch real price for ${pair}, using mock.`);
+        } catch (err: any) {
+            console.warn(`Failed to fetch real price for ${pair}: ${err.message}. Using mock.`);
             // Mock data for beautiful dashboard
             const mockPrices: Record<string, number> = {
                 "ETH/USD": 2845.42,
