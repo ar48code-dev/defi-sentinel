@@ -1,0 +1,112 @@
+# 🛡️ DeFi-Sentinel
+### *Real-time DeFi Forensic Monitoring & Automated Protection*
+
+**DeFi-Sentinel** is a production-grade monitoring and protection suite designed for the modern DeFi ecosystem. It combines real-time forensic analysis with automated emergency response to protect user collateral and protocol health.
+
+Built for the **Chainlink Constellation Hackathon**, DeFi-Sentinel leverages Chainlink's industry-standard infrastructure to bridge the gap between off-chain threat detection and on-chain security.
+
+---
+
+## 🌟 Key Features
+
+- **📊 Real-time Forensic Dashboard**: Monitor protocol health, TVL anomalies, and market volatility through a high-fidelity interface.
+- **⚡ Automated Protection**: Integrates with **Aave V3** to automatically protect user positions from liquidation using automated collateral top-ups.
+- **🧠 Threat Intelligence Feed**: Real-time monitoring of protocol-level threats (e.g., flash loans, whale movements) powered by custom Forensic Loggers.
+- **🔔 Multi-channel Notifications**: Instant alerts via **Telegram** and **Email (SendGrid)** when positions are at risk or protection is executed.
+- **🔗 Chainlink Integration**:
+    - **Chainlink Data Feeds**: For accurate, decentralized price data.
+    - **Chainlink CRE (Custom Runtime Environment)**: For complex, off-chain threat detection and workflow orchestration.
+
+---
+
+## 🚀 Tech Stack
+
+- **Frontend**: Next.js 14, React, Tailwind CSS, Framer Motion (for premium UI/UX).
+- **Backend**: Node.js, Express, TypeScript, Ethers.js.
+- **Smart Contracts**: Solidity, Hardhat.
+- **Protocols**: Aave V3 (Lending/Borrowing).
+- **Infrastucture**: Alchemy (RPC), Chainlink, SendGrid, Telegram Bot API.
+
+---
+
+## 📦 Project Structure
+
+```bash
+├── backend/            # Express.js server & forensic logic
+├── contracts/          # Solidity smart contracts (SentinelCore, ForensicsLogger)
+├── frontend/           # Next.js dashboard application
+├── cre-workflows/      # Chainlink CRE configuration & workflows
+└── .env                # Environment configuration
+```
+
+---
+
+## 🛠️ Setup & Installation
+
+### 1. Requirements
+- Node.js v18+
+- npm or yarn
+
+### 2. Configuration (`.env`)
+Create a `.env` file in the root directory (refer to `.env.example`):
+```env
+# RPC & Wallet
+SEPOLIA_RPC_URL=your_alchemy_url
+PRIVATE_KEY=your_wallet_private_key
+
+# Contract Addresses (already deployed on Sepolia)
+SENTINEL_CORE_ADDRESS=0xa9D6084EE79142526121899B59D0b774A7F583d1
+FORENSICS_LOGGER_ADDRESS=0x83D71737B6499B6f9C0e68F47f9B7a08d2D3AC91
+AUTO_PROTECTOR_ADDRESS=0x3b29D86d5f9F755a17BfA04eD62ab01316C1F0cb
+
+# Notifications
+SENDGRID_API_KEY=your_sendgrid_key
+TELEGRAM_BOT_TOKEN=your_bot_token
+```
+
+### 3. Running Locally
+
+**Backend:**
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+**Frontend:**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The dashboard will be available at `http://localhost:3000`.
+
+---
+
+## 🛡️ Smart Contracts (Sepolia)
+
+- **SentinelCore**: The central hub for protocol registration and threat level management.
+- **ForensicsLogger**: An immutable on-chain log for forensic data and incident history.
+- **AutoProtector**: Executes automated protection logic for Aave V3 positions.
+
+---
+
+## 🏆 Hackathon Judges / Testers
+
+To test the application:
+1. Load the dashboard at `http://localhost:3000`.
+2. Connect your MetaMask wallet (Sepolia Network).
+3. View the **Live Threat Feed** for real-time monitoring.
+4. Check the **System Status** to verify Chainlink integration.
+
+*Note: For full automated protection testing, ensure your wallet has a position on Aave V3 Sepolia and sufficient collateral in the SentinelVault.*
+
+---
+
+## 👥 Team
+- **Anirban** - Lead Developer & Architect
+- **GitHub**: [ar48code-dev](https://github.com/ar48code-dev)
+
+---
+*Developed for Chainlink Constellation Hackathon 2026*

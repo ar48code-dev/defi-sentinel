@@ -1,0 +1,14 @@
+name: monitor-protocol
+version: v1
+type: typescript
+trigger:
+  type: schedule
+  config:
+    cron: "*/10 * * * *" # Every 10 minutes
+
+inputs:
+  rpcUrl: "${SEPOLIA_RPC_URL}"
+
+config:
+  runtime: nodejs20
+  entrypoint: monitorProtocol.ts

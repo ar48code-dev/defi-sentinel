@@ -1,0 +1,16 @@
+name: monitor-health
+version: v1
+type: typescript
+trigger:
+  type: schedule
+  config:
+    cron: "*/5 * * * *" # Every 5 minutes
+
+inputs:
+  userAddress: "${SENTINEL_USER_ADDRESS}"
+  rpcUrl: "${SEPOLIA_RPC_URL}"
+  threshold: 1.5
+
+config:
+  runtime: nodejs20
+  entrypoint: monitorHealth.ts
