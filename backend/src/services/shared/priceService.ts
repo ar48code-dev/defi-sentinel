@@ -1,6 +1,6 @@
-import "dotenv/config";
 import { ethers } from "ethers";
 import { CHAINLINK_PRICE_FEED_ABI, CONTRACT_ADDRESSES } from "../../config/contracts";
+import { SECRETS } from "../../config/secrets";
 
 export interface PriceData {
     pair: string;
@@ -24,7 +24,7 @@ export class PriceService {
     private CACHE_TTL = 30_000; // 30 seconds
 
     constructor() {
-        this.provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL);
+        this.provider = new ethers.JsonRpcProvider(SECRETS.SEPOLIA_RPC_URL);
         this.cache = new Map();
     }
 

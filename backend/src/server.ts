@@ -5,6 +5,7 @@ import { priceService } from "./services/shared/priceService.js";
 import userRoutes from "./routes/user.routes.js";
 import protocolRoutes from "./routes/protocol.routes.js";
 import statusRoutes from "./routes/status.routes.js";
+import { SECRETS } from "./config/secrets";
 
 const app = express();
 const PORT = process.env.PORT || 3001;

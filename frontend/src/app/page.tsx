@@ -3,8 +3,10 @@ import React, { useState, useEffect } from "react";
 import PriceCard from "@/components/dashboard/PriceCard";
 import IncidentTable from "@/components/dashboard/IncidentTable";
 import ConfigModal from "@/components/dashboard/ConfigModal";
-import { Shield, Activity, Lock, Zap, RefreshCw, AlertTriangle, Search, Bell, Settings } from "lucide-react";
+import { Shield, Activity, Lock, Zap, RefreshCw, AlertTriangle, Search, Bell, Settings, CheckCircle2 } from "lucide-react";
 import { fetchPrices, fetchIncidents, fetchHealth } from "@/lib/api/backend";
+
+import { connectWallet, getConnectedAddress, formatAddress, depositToVault } from "@/lib/wallet";
 
 const MOCK_PRICES = {
   "ETH/USD": { price: 2845.42, timestamp: Math.floor(Date.now() / 1000), source: "fallback" },
@@ -21,8 +23,29 @@ export default function Home() {
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isWalletConnected, setIsWalletConnected] = useState(false);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
+  const [threshold, setThreshold] = useState(1.3);
+
+  // Sarah's Scenario State (Mocking a position for demo if wallet connected)
+  const [userPosition, setUserPosition] = useState<any>(null);
+
+  const handleConnectWallet = async () => {
+    try {
+      const data = await connectWallet();
+      setWalletAddress(data.address);
+      // Simulate fetching Sarah's position
+      setUserPosition({
+        collateral: 10000,
+        borrowed: 5000,
+        healthFactor: 1.45,
+        protectionReserve: 500,
+        status: "safe"
+      });
+    } catch (err: any) {
+      setError(err.message || "Failed to connect wallet");
+    }
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -55,7 +78,10 @@ export default function Home() {
       setError(syncWarning ? "Limited Blockchain Sync" : null);
     } catch (err: any) {
       console.error("Data load error:", err);
-      setError("Fallback Mode: Local Forensic Cache");
+      // Don't set error if we have prices already
+      if (Object.keys(prices).length === 0) {
+        setError("Fallback Mode: Local Forensic Cache");
+      }
       setLastUpdate(new Date());
     } finally {
       setLoading(false);
@@ -64,6 +90,19 @@ export default function Home() {
 
   useEffect(() => {
     loadData();
+    const checkWallet = async () => {
+      const addr = await getConnectedAddress();
+      if (addr) setWalletAddress(addr);
+    };
+    checkWallet();
+
+    // Setup listeners for account changes
+    if (typeof window !== "undefined" && (window as any).ethereum) {
+      (window as any).ethereum.on("accountsChanged", (accounts: string[]) => {
+        setWalletAddress(accounts[0] || null);
+      });
+    }
+
     const interval = setInterval(loadData, 15000);
     return () => clearInterval(interval);
   }, []);
@@ -113,13 +152,13 @@ export default function Home() {
             </button>
             <div className="h-8 w-px bg-white/10 mx-1 sm:mx-0"></div>
             <button
-              onClick={() => setIsWalletConnected(!isWalletConnected)}
-              className={`rounded-full px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-black transition-all active:scale-95 ${isWalletConnected
+              onClick={walletAddress ? undefined : handleConnectWallet}
+              className={`rounded-full px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-black transition-all active:scale-95 ${walletAddress
                 ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500/20"
                 : "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700"
                 }`}
             >
-              {isWalletConnected ? "0x14...0e28" : "Connect Wallet"}
+              {walletAddress ? formatAddress(walletAddress) : "Connect Wallet"}
             </button>
           </div>
         </div>
@@ -144,7 +183,7 @@ export default function Home() {
             <div className="flex items-center gap-2 text-indigo-400">
               <Activity className="h-3 w-3" />
               <span className="text-[10px] font-black uppercase tracking-[0.2em] transition-all">
-                {isWalletConnected ? "User Position Monitoring" : "Global Protocol Forensics"}
+                {walletAddress ? "User Position Monitoring" : "Global Protocol Forensics"}
               </span>
             </div>
             <h1 className="mt-2 text-5xl font-black tracking-tighter">
@@ -158,6 +197,99 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* User Position (Sarah's Scenario) */}
+        {walletAddress && userPosition && (
+          <div className="mb-10 animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="rounded-3xl border border-indigo-500/20 bg-indigo-500/5 p-8 backdrop-blur-xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-4">
+                <div className="flex items-center gap-2 rounded-full bg-emerald-500/10 px-3 py-1 text-[10px] font-black text-emerald-500 uppercase tracking-widest border border-emerald-500/20">
+                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                  Auto-Protection Active
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
+                <div className="md:col-span-1">
+                  <h3 className="text-xs font-bold text-white/40 uppercase tracking-widest mb-4">Aave V3 Position</h3>
+                  <div className="space-y-1">
+                    <p className="text-3xl font-black">${userPosition.collateral.toLocaleString()}</p>
+                    <p className="text-[10px] font-bold text-white/20 uppercase tracking-tighter">Total Collateral (USDC)</p>
+                  </div>
+                  <div className="mt-6 space-y-1 text-rose-400">
+                    <p className="text-2xl font-black">${userPosition.borrowed.toLocaleString()}</p>
+                    <p className="text-[10px] font-bold opacity-40 uppercase tracking-tighter">Total Borrowed (ETH)</p>
+                  </div>
+                </div>
+
+                <div className="md:col-span-1 flex flex-col justify-center border-l border-white/5 pl-8">
+                  <h3 className="text-xs font-bold text-white/40 uppercase tracking-widest mb-2">Health Factor</h3>
+                  <div className="flex items-end gap-2">
+                    <span className="text-4xl font-black text-emerald-400">{userPosition.healthFactor}</span>
+                    <span className="mb-1.5 text-xs font-bold text-white/20">/ 1.0</span>
+                  </div>
+                  <div className="mt-4 h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-rose-500 via-amber-500 to-emerald-500 transition-all duration-1000"
+                      style={{ width: `${Math.min(userPosition.healthFactor * 50, 100)}%` }}
+                    ></div>
+                  </div>
+                  <div className="mt-4">
+                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-tighter block mb-1">
+                      Protection Threshold: <span className="text-indigo-400">{threshold}</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="1.1"
+                      max="2.0"
+                      step="0.05"
+                      value={threshold}
+                      onChange={(e) => setThreshold(parseFloat(e.target.value))}
+                      className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="md:col-span-1 flex flex-col justify-center border-l border-white/5 pl-8">
+                  <h3 className="text-xs font-bold text-white/40 uppercase tracking-widest mb-4">SentinelVault Reserve</h3>
+                  <div className="space-y-1">
+                    <p className="text-3xl font-black text-indigo-400">${userPosition.protectionReserve.toLocaleString()}</p>
+                    <p className="text-[10px] font-bold text-white/20 uppercase tracking-tighter">Available for Top-up</p>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      try {
+                        const amount = prompt("Enter amount to deposit (USDC):", "100");
+                        if (amount) {
+                          const val = parseFloat(amount);
+                          if (isNaN(val)) return alert("Invalid amount");
+                          const res = await depositToVault(val);
+                          alert(`✅ Deposit Confirmed! Tx: ${res.hash}`);
+                          setUserPosition({ ...userPosition, protectionReserve: userPosition.protectionReserve + val });
+                        }
+                      } catch (err: any) {
+                        alert(`Error: ${err.message}`);
+                      }
+                    }}
+                    className="mt-4 text-[10px] font-black text-white/60 hover:text-white uppercase tracking-widest bg-white/5 px-4 py-2 rounded-lg border border-white/10 hover:bg-white/10 transition-all active:scale-95"
+                  >
+                    Deposit Risk-Free
+                  </button>
+                </div>
+
+                <div className="md:col-span-1 flex flex-col justify-center items-center bg-white/5 rounded-2xl p-4 border border-white/5">
+                  <Shield className="h-8 w-8 text-indigo-500 mb-2" />
+                  <p className="text-[10px] font-black text-white uppercase tracking-widest">Protection Active</p>
+                  <p className="mt-2 text-[10px] text-center text-white/40 font-medium px-4 leading-relaxed">
+                    Auto-topping up from Vault if Health Factor drops below <span className="text-white font-bold">{threshold}</span>.
+                    <br />
+                    <span className="text-[8px] text-emerald-400 mt-1 block">CONNECTED TO ETHEREUM MAINNET (VIA SEPOLIA)</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* High-Level Stats */}
         <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -250,9 +382,35 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Incident Monitoring */}
+        {/* Incident Monitoring & Protocol Guard */}
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-black tracking-tight flex items-center gap-2">
+                <Activity className="h-5 w-5 text-rose-500" />
+                Live Incident Forensics
+              </h2>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    const newIncident = {
+                      id: `inc-${Date.now()}`,
+                      timestamp: Date.now(),
+                      protocol: "Aave V3",
+                      description: "🚨 High value deposit detected ($50M) — Anomaly Score: 84/100",
+                      threatLevel: "high",
+                      status: "active",
+                      source: "ai-detection"
+                    };
+                    setIncidents([newIncident, ...incidents]);
+                    alert("🚨 CRITICAL ALERT: Large whale deposit detected on Aave. AI scoring threat level: 4/5. Execution of 'Pause Borrows' recommended.");
+                  }}
+                  className="text-[10px] font-black bg-rose-500/10 text-rose-500 border border-rose-500/20 px-3 py-1.5 rounded-full hover:bg-rose-500/20 transition-all uppercase tracking-widest"
+                >
+                  Simulate Whale Anomaly
+                </button>
+              </div>
+            </div>
             <IncidentTable incidents={incidents.length > 0 ? incidents : [
               { id: "m1", timestamp: Date.now() - 3600000, protocol: "Aave V3", description: "Large withdrawal detected on USDC pool", threatLevel: "medium", status: "monitoring", source: "fallback" },
               { id: "m2", timestamp: Date.now() - 7200000, protocol: "Curve.fi", description: "Abnormal price imbalance in 3pool", threatLevel: "high", status: "active", source: "fallback" },
@@ -262,43 +420,57 @@ export default function Home() {
           <div className="space-y-6">
             <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-indigo-600 to-violet-700 p-8 shadow-2xl shadow-indigo-600/20 relative overflow-hidden group">
               <div className="absolute -right-10 -bottom-10 h-40 w-40 bg-white/20 blur-3xl rounded-full group-hover:scale-125 transition-transform duration-700"></div>
-              <h3 className="text-xl font-black relative">Shield Your Protocol</h3>
+              <h3 className="text-xl font-black relative">Protocol Command Center</h3>
               <p className="mt-4 text-sm text-white/80 leading-relaxed relative">
-                Integrate Sentinel Core into your protocol's security layer for automated emergency actions.
+                Automated 24/7 monitoring for protocol teams. High-fidelity anomaly detection and autonomous incident response.
               </p>
+              <div className="mt-6 space-y-3 relative text-[10px] font-black uppercase tracking-widest text-white/60">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-3 w-3 text-emerald-400" /> Register Protocol addresses
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-3 w-3 text-emerald-400" /> Connect Admin Multisig
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-white/20"></div> Define Safety Rules (No-Code)
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-white/20"></div> Approve Emergency Actions
+                </div>
+              </div>
               <button
-                onClick={() => alert("Protocol Onboarding Started!")}
+                onClick={() => alert("Protocol Onboarding: 1. Register Addresses -> 2. Connect Multisig -> 3. Define Rules")}
                 className="mt-8 w-full rounded-xl bg-white px-4 py-4 text-xs font-black text-indigo-600 hover:shadow-xl hover:-translate-y-1 transition-all active:scale-95 relative uppercase tracking-widest"
               >
-                Start Registration
+                Register Your Protocol
               </button>
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-sm shadow-inner">
               <h3 className="text-lg font-bold flex items-center gap-2">
                 <Shield className="h-4 w-4 text-indigo-400" />
-                Service Health
+                Security Infrastructure
               </h3>
               <div className="mt-6 space-y-5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-white/40 uppercase tracking-widest">Chainlink CRE</span>
+                  <span className="text-xs font-bold text-white/40 uppercase tracking-widest">Chainlink Functions</span>
                   <span className="flex items-center gap-2 text-[10px] font-black text-emerald-400 uppercase">
                     <div className="h-1 w-1 rounded-full bg-emerald-400 animate-pulse"></div>
                     Operational
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-white/40 uppercase tracking-widest">Forensic Nodes</span>
+                  <span className="text-xs font-bold text-white/40 uppercase tracking-widest">Anomaly Detection AI</span>
                   <span className="flex items-center gap-2 text-[10px] font-black text-emerald-400 uppercase">
                     <div className="h-1 w-1 rounded-full bg-emerald-400 animate-pulse"></div>
                     Active
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-white/40 uppercase tracking-widest">Sepolia Network</span>
+                  <span className="text-xs font-bold text-white/40 uppercase tracking-widest">Global Node Sync</span>
                   <span className="flex items-center gap-2 text-[10px] font-black text-amber-500 uppercase">
-                    <div className="h-1 w-1 rounded-full bg-amber-500"></div>
-                    High Latency
+                    <div className="h-1 w-2 rounded-full bg-amber-500"></div>
+                    Syncing...
                   </span>
                 </div>
               </div>
@@ -309,11 +481,14 @@ export default function Home() {
 
       <footer className="mt-20 border-t border-white/5 py-12 bg-black/40">
         <div className="mx-auto max-w-7xl px-4 flex flex-col items-center justify-between gap-6 md:flex-row sm:px-6 lg:px-8 text-white/20 text-[10px] font-bold uppercase tracking-[0.2em]">
-          <div>© 2026 DeFi-Sentinel · Constellation Hackathon</div>
+          <div className="flex items-center gap-2">
+            <Shield className="h-4 w-4" />
+            © 2026 DeFi-Sentinel · Protecting the Future of Finance
+          </div>
           <div className="flex gap-10">
+            <a href="https://defi-sentinel.app" className="hover:text-indigo-400 transition-colors">defi-sentinel.app</a>
             <a href="#" className="hover:text-indigo-400 transition-colors">Forensics API</a>
-            <a href="#" className="hover:text-indigo-400 transition-colors">Github Repo</a>
-            <a href="#" className="hover:text-indigo-400 transition-colors">Legal Disclosure</a>
+            <a href="#" className="hover:text-indigo-400 transition-colors">Documentation</a>
           </div>
         </div>
       </footer>

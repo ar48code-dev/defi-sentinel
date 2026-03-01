@@ -12,7 +12,7 @@ Built for the **Chainlink Constellation Hackathon**, DeFi-Sentinel leverages Cha
 - **📊 Real-time Forensic Dashboard**: Monitor protocol health, TVL anomalies, and market volatility through a high-fidelity interface.
 - **⚡ Automated Protection**: Integrates with **Aave V3** to automatically protect user positions from liquidation using automated collateral top-ups.
 - **🧠 Threat Intelligence Feed**: Real-time monitoring of protocol-level threats (e.g., flash loans, whale movements) powered by custom Forensic Loggers.
-- **🔔 Multi-channel Notifications**: Instant alerts via **Telegram** and **Email (SendGrid)** when positions are at risk or protection is executed.
+- **📧 Email Notifications**: Instant alerts via **Email (SendGrid)** when positions are at risk or protection is executed.
 - **🔗 Chainlink Integration**:
     - **Chainlink Data Feeds**: For accurate, decentralized price data.
     - **Chainlink CRE (Custom Runtime Environment)**: For complex, off-chain threat detection and workflow orchestration.
@@ -25,7 +25,7 @@ Built for the **Chainlink Constellation Hackathon**, DeFi-Sentinel leverages Cha
 - **Backend**: Node.js, Express, TypeScript, Ethers.js.
 - **Smart Contracts**: Solidity, Hardhat.
 - **Protocols**: Aave V3 (Lending/Borrowing).
-- **Infrastucture**: Alchemy (RPC), Chainlink, SendGrid, Telegram Bot API.
+- **Infrastucture**: Alchemy (RPC), Chainlink, SendGrid.
 
 ---
 
@@ -66,7 +66,7 @@ Open the `.env` file and add your keys:
 ```env
 SEPOLIA_RPC_URL=your_alchemy_url
 PRIVATE_KEY=your_wallet_private_key
-TELEGRAM_BOT_TOKEN=your_bot_token
+ALERT_EMAIL=your_email@example.com
 SENDGRID_API_KEY=your_sendgrid_key
 ```
 
@@ -85,23 +85,41 @@ cd frontend && npm install && npm run dev
 
 ---
 
-## 🛡️ Smart Contracts (Sepolia)
+## ⚡ Zero-Config Demo (For Hackathon Judges)
 
-- **SentinelCore**: The central hub for protocol registration and threat level management.
-- **ForensicsLogger**: An immutable on-chain log for forensic data and incident history.
-- **AutoProtector**: Executes automated protection logic for Aave V3 positions.
+We understand that judges often have limited time. To ensure you can experience the **full power** of DeFi-Sentinel immediately:
+
+- **✅ No API Keys Required**: The app comes with **pre-configured fallback credentials** for Sepolia RPC, Chainlink Feeds, and Notification services.
+- **✅ Real Blockchain Data**: Unlike other projects that show static mock data, DeFi-Sentinel displays **real live prices** from Chainlink and **real protocol status** from Aave immediately upon startup.
+- **✅ Scenario 1: Sarah's Story**: Connect your MetaMask to see a simulated $10k position. You can use the **Health Factor Slider** to set protection thresholds and test the **"Deposit Risk-Free"** button to trigger a real MetaMask USDC deposit to our `SentinelVault`.
+- **✅ Scenario 2: Protocol Security**: Click **"Simulate Whale Anomaly"** to see how our AI scores a $50M threat level (4/5) and recommends immediate emergency actions.
 
 ---
 
-## 🏆 Hackathon Judges / Testers
+## 🛡️ Smart Contracts (Sepolia)
 
-To test the application:
-1. Load the dashboard at `http://localhost:3000`.
-2. Connect your MetaMask wallet (Sepolia Network).
-3. View the **Live Threat Feed** for real-time monitoring.
-4. Check the **System Status** to verify Chainlink integration.
+- **SentinelCore**: `0xa9D6084EE79142526121899B59D0b774A7F583d1`
+- **ForensicsLogger**: `0x83D71737B6499B6f9C0e68F47f9B7a08d2D3AC91`
+- **AutoProtector**: `0x3b29D86d5f9F755a17BfA04eD62ab01316C1F0cb`
 
-*Note: For full automated protection testing, ensure your wallet has a position on Aave V3 Sepolia and sufficient collateral in the SentinelVault.*
+---
+
+## 🏆 Presentation & Live Demo
+
+When testing the application:
+1. **Launch**: Run `./start.sh` or `npm run dev`.
+2. **Dashboard**: Navigate to `http://localhost:3000`. You will see **Live Price Feeds** instantly.
+3. **User Protection (Sarah's Story)**: 
+   - Connect your MetaMask.
+   - You will see a dedicated **User Position** panel illustrating how we protect a $10,000 USDC collateral position.
+   - Adjust the **Protection Threshold** slider to see the status update in real-time.
+   - Click **"Deposit Risk-Free"** to trigger a real MetaMask transaction for USDC protection reserves.
+4. **Protocol Security (Whale Detection)**:
+   - Click **"Simulate Whale Anomaly"**.
+   - Watch the AI detect a $50M threat in real-time, score it (4/5), and recommend emergency actions like **"Pause Borrows"**.
+5. **Real Email Alerts**: 
+   - Open the **System Config (⚙️)** and enter your email under **Alert Email**.
+   - The app will send you real-world security alerts when critical events occur.
 
 ---
 

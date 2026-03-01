@@ -1,5 +1,5 @@
 import sgMail from "@sendgrid/mail";
-import TelegramBot from "node-telegram-bot-api";
+import { SECRETS } from "../../config/secrets";
 
 interface AlertData {
     userAddress: string;
@@ -11,14 +11,9 @@ interface AlertData {
 }
 
 export class NotificationService {
-    private bot: TelegramBot | null = null;
-
     constructor() {
-        if (process.env.SENDGRID_API_KEY) {
-            sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-        }
-        if (process.env.TELEGRAM_BOT_TOKEN) {
-            this.bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: false });
+        if (SECRETS.SENDGRID_API_KEY) {
+            sgMail.setApiKey(SECRETS.SENDGRID_API_KEY);
         }
     }
 
@@ -32,12 +27,12 @@ export class NotificationService {
         return emojis[level] || "⚪";
     }
 
-    async sendLiquidationAlert(email: string, telegramId: string | null, data: AlertData): Promise<void> {
+    async sendLiquidationAlert(email: string, data: AlertData): Promise<void> {
         const emoji = this.getRiskEmoji(data.riskLevel);
         const subject = `${emoji} DeFi-Sentinel: Position at Risk — Health Factor ${data.healthFactor}`;
 
         // Email
-        if (email && process.env.SENDGRID_API_KEY) {
+        if (email && (process.env.SENDGRID_API_KEY || SECRETS.SENDGRID_API_KEY)) {
             try {
                 await sgMail.send({
                     to: email,
@@ -50,32 +45,12 @@ export class NotificationService {
                 console.error("SendGrid email error:", err);
             }
         }
-
-        // Telegram
-        if (telegramId && this.bot) {
-            try {
-                const message = `${emoji} <b>DeFi-Sentinel Alert</b>\n\n` +
-                    `🔢 <b>Health Factor:</b> ${data.healthFactor}\n` +
-                    `💰 <b>Collateral:</b> $${data.collateralUSD}\n` +
-                    `📉 <b>Debt:</b> $${data.debtUSD}\n` +
-                    `⚠️ <b>Risk Level:</b> ${data.riskLevel.toUpperCase()}\n\n` +
-                    `📊 <a href="${process.env.FRONTEND_URL}/dashboard/user">View Dashboard</a>`;
-
-                await this.bot.sendMessage(telegramId, message, {
-                    parse_mode: "HTML",
-                    disable_notification: data.riskLevel === "warning",
-                });
-                console.log(`Telegram alert sent to ${telegramId}`);
-            } catch (err) {
-                console.error("Telegram error:", err);
-            }
-        }
     }
 
-    async sendProtectionExecuted(email: string, telegramId: string | null, data: AlertData & { amount: string }): Promise<void> {
+    async sendProtectionExecuted(email: string, data: AlertData & { amount: string }): Promise<void> {
         const subject = `✅ DeFi-Sentinel: Auto-Protection Executed for Your Position`;
 
-        if (email && process.env.SENDGRID_API_KEY) {
+        if (email && (process.env.SENDGRID_API_KEY || SECRETS.SENDGRID_API_KEY)) {
             try {
                 await sgMail.send({
                     to: email,
@@ -83,28 +58,13 @@ export class NotificationService {
                     subject,
                     html: this.buildProtectionEmailHTML(data),
                 });
+                console.log(`Protection email sent to ${email}`);
             } catch (err) {
                 console.error("SendGrid error:", err);
             }
         }
-
-        if (telegramId && this.bot) {
-            try {
-                const txLink = data.txHash
-                    ? `\n🔗 <a href="https://sepolia.etherscan.io/tx/${data.txHash}">View on Etherscan</a>`
-                    : "";
-                await this.bot.sendMessage(
-                    telegramId,
-                    `✅ <b>Auto-Protection Executed!</b>\n\n` +
-                    `💊 Topped up $${data.amount} collateral\n` +
-                    `📈 <b>New Health Factor:</b> ${data.healthFactor}` + txLink,
-                    { parse_mode: "HTML" }
-                );
-            } catch (err) {
-                console.error("Telegram error:", err);
-            }
-        }
     }
+
 
     async sendProtocolAlert(email: string, data: { protocol: string; threatLevel: number; description: string }): Promise<void> {
         if (!email || !process.env.SENDGRID_API_KEY) return;

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { X, Key, Shield, Send, Globe, CheckCircle2 } from "lucide-react";
+import { X, Key, Shield, Mail, Globe, CheckCircle2 } from "lucide-react";
 
 interface ConfigModalProps {
     isOpen: boolean;
@@ -11,7 +11,7 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose }) => {
     const [config, setConfig] = useState({
         SEPOLIA_RPC_URL: "",
         PRIVATE_KEY: "",
-        TELEGRAM_BOT_TOKEN: "",
+        ALERT_EMAIL: "",
         SENDGRID_API_KEY: "",
     });
 
@@ -104,13 +104,13 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose }) => {
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 block flex items-center gap-2">
-                                    <Send className="h-3 w-3" /> Telegram Token
+                                    <Mail className="h-3 w-3" /> Alert Email
                                 </label>
                                 <input
-                                    type="password"
-                                    placeholder="Bot Token"
-                                    value={config.TELEGRAM_BOT_TOKEN}
-                                    onChange={(e) => setConfig({ ...config, TELEGRAM_BOT_TOKEN: e.target.value })}
+                                    type="email"
+                                    placeholder="sarah@example.com"
+                                    value={config.ALERT_EMAIL}
+                                    onChange={(e) => setConfig({ ...config, ALERT_EMAIL: e.target.value })}
                                     className="w-full rounded-xl border border-white/5 bg-white/[0.03] p-4 text-sm text-white placeholder:text-white/10 focus:border-indigo-500/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all"
                                 />
                             </div>
@@ -137,8 +137,8 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose }) => {
                         type="submit"
                         disabled={status.loading}
                         className={`w-full rounded-xl py-4 text-xs font-black uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center gap-2 ${status.success
-                                ? "bg-emerald-500 text-white"
-                                : "bg-indigo-600 text-white hover:bg-indigo-700 shadow-xl shadow-indigo-600/20"
+                            ? "bg-emerald-500 text-white"
+                            : "bg-indigo-600 text-white hover:bg-indigo-700 shadow-xl shadow-indigo-600/20"
                             }`}
                     >
                         {status.loading ? (

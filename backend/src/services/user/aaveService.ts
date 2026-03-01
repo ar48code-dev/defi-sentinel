@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import { AAVE_POOL_ABI, AAVE_DATA_PROVIDER_ABI, CONTRACT_ADDRESSES } from "../../config/contracts";
+import { SECRETS } from "../../config/secrets";
 
 export interface UserPosition {
     address: string;
@@ -19,7 +20,7 @@ export class AaveService {
     private dataProvider: ethers.Contract;
 
     constructor() {
-        this.provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL);
+        this.provider = new ethers.JsonRpcProvider(SECRETS.SEPOLIA_RPC_URL);
         this.pool = new ethers.Contract(CONTRACT_ADDRESSES.AAVE_V3_POOL, AAVE_POOL_ABI, this.provider);
         this.dataProvider = new ethers.Contract(
             CONTRACT_ADDRESSES.AAVE_V3_DATA_PROVIDER,
