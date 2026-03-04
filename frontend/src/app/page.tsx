@@ -56,18 +56,17 @@ export default function Home() {
         fetchHealth()
       ]);
 
-      let syncWarning = false;
+      let priceOk = false;
+      let incidentOk = false;
 
       if (priceRes.status === "fulfilled" && priceRes.value.success) {
         setPrices(priceRes.value.data);
-      } else {
-        syncWarning = true;
+        priceOk = true;
       }
 
       if (incidentRes.status === "fulfilled" && incidentRes.value.success) {
         setIncidents(incidentRes.value.data);
-      } else {
-        syncWarning = true;
+        incidentOk = true;
       }
 
       if (healthRes.status === "fulfilled") {
@@ -75,13 +74,15 @@ export default function Home() {
       }
 
       setLastUpdate(new Date());
-      setError(syncWarning ? "Limited Blockchain Sync" : null);
+      // Only show a warning if BOTH prices AND incidents failed
+      if (!priceOk && !incidentOk) {
+        setError("Backend offline — showing cached data");
+      } else {
+        setError(null); // ✅ Data loaded successfully, clear any errors
+      }
     } catch (err: any) {
       console.error("Data load error:", err);
-      // Don't set error if we have prices already
-      if (Object.keys(prices).length === 0) {
-        setError("Fallback Mode: Local Forensic Cache");
-      }
+      setError("Backend offline — showing cached data");
       setLastUpdate(new Date());
     } finally {
       setLoading(false);

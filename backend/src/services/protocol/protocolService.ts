@@ -28,14 +28,28 @@ export interface ProtocolMetrics {
 }
 
 export class ProtocolService {
-    private provider: ethers.JsonRpcProvider;
-    private signer: ethers.Wallet;
-    private sentinel: ethers.Contract;
-    private logger: ethers.Contract;
+    // ✅ FIX: Lazy initialization — all contracts created on first use, AFTER .env is loaded
+    private _provider: ethers.JsonRpcProvider | null = null;
+    private _signer: ethers.Wallet | null = null;
+    private _sentinel: ethers.Contract | null = null;
+    private _logger: ethers.Contract | null = null;
+    private _initialized = false;
     private metrics: Map<string, ProtocolMetrics[]> = new Map();
 
-    constructor() {
-        this.provider = new ethers.JsonRpcProvider(SECRETS.SEPOLIA_RPC_URL);
+    // ✅ Lazy getter: provider is created only when first needed
+    private get provider(): ethers.JsonRpcProvider {
+        if (!this._provider) {
+            const rpcUrl = SECRETS.SEPOLIA_RPC_URL;
+            console.log(`[ProtocolService] Creating provider with RPC: ${rpcUrl ? rpcUrl.substring(0, 40) + "..." : "⚠️ MISSING!"}`);
+            this._provider = new ethers.JsonRpcProvider(rpcUrl);
+        }
+        return this._provider;
+    }
+
+    // ✅ Lazy init of contracts, resolves private key + addresses at first use
+    private initContracts(): void {
+        if (this._initialized) return;
+        this._initialized = true;
 
         let privateKey = SECRETS.PRIVATE_KEY;
         if (privateKey && !privateKey.startsWith("0x") && privateKey.length === 64) {
@@ -48,20 +62,27 @@ export class ProtocolService {
         const isValidAddress = (addr: string) => addr && addr.startsWith("0x") && addr.length === 42;
 
         if (isValidKey && isValidAddress(coreAddress) && isValidAddress(loggerAddress)) {
-            this.signer = new ethers.Wallet(privateKey, this.provider);
-            this.sentinel = new ethers.Contract(coreAddress, SENTINEL_CORE_ABI, this.signer);
-            this.logger = new ethers.Contract(loggerAddress, FORENSICS_LOGGER_ABI, this.signer);
+            this._signer = new ethers.Wallet(privateKey, this.provider);
+            this._sentinel = new ethers.Contract(coreAddress, SENTINEL_CORE_ABI, this._signer);
+            this._logger = new ethers.Contract(loggerAddress, FORENSICS_LOGGER_ABI, this._signer);
+            console.log("[ProtocolService] ✅ Initialized with signer (read+write mode)");
         } else if (isValidAddress(coreAddress) && isValidAddress(loggerAddress)) {
-            console.warn("Invalid or missing PRIVATE_KEY. ProtocolService running in read-only mode.");
-            this.signer = null as any;
-            this.sentinel = new ethers.Contract(coreAddress, SENTINEL_CORE_ABI, this.provider);
-            this.logger = new ethers.Contract(loggerAddress, FORENSICS_LOGGER_ABI, this.provider);
+            console.warn("[ProtocolService] Invalid or missing PRIVATE_KEY. Running in read-only mode.");
+            this._sentinel = new ethers.Contract(coreAddress, SENTINEL_CORE_ABI, this.provider);
+            this._logger = new ethers.Contract(loggerAddress, FORENSICS_LOGGER_ABI, this.provider);
         } else {
-            console.warn("Contract addresses not provided. ProtocolService disabled.");
-            this.signer = null as any;
-            this.sentinel = null as any;
-            this.logger = null as any;
+            console.warn("[ProtocolService] Contract addresses not provided. ProtocolService disabled.");
         }
+    }
+
+    private get sentinel(): ethers.Contract | null {
+        this.initContracts();
+        return this._sentinel;
+    }
+
+    private get logger(): ethers.Contract | null {
+        this.initContracts();
+        return this._logger;
     }
 
     async getProtocolInfo(address: string): Promise<{ name: string; threatLevel: number; isRegistered: boolean }> {
@@ -79,12 +100,14 @@ export class ProtocolService {
     }
 
     async updateThreatLevel(protocol: string, level: number): Promise<string> {
+        if (!this.sentinel) throw new Error("Sentinel not initialized");
         const tx = await this.sentinel.updateThreatLevel(protocol, level);
         await tx.wait();
         return tx.hash;
     }
 
     async logAlert(protocol: string, description: string, threatLevel: number): Promise<void> {
+        if (!this.logger) throw new Error("Logger not initialized");
         const dataHash = ethers.keccak256(ethers.toUtf8Bytes(description + Date.now()));
         const tx = await this.logger.logProtocolAlert(protocol, description, dataHash, threatLevel);
         await tx.wait();

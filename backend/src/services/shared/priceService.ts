@@ -21,13 +21,23 @@ const PRICE_FEEDS: Record<string, string> = {
 };
 
 export class PriceService {
-    private provider: ethers.JsonRpcProvider;
+    // ✅ FIX: Lazy provider — created on first use, AFTER .env is fully loaded
+    private _provider: ethers.JsonRpcProvider | null = null;
     private cache: Map<string, { data: PriceData; expiresAt: number }>;
     private CACHE_TTL = 30_000; // 30 seconds
 
     constructor() {
-        this.provider = new ethers.JsonRpcProvider(SECRETS.SEPOLIA_RPC_URL);
         this.cache = new Map();
+    }
+
+    // ✅ Getter ensures provider is always created with the correct RPC URL
+    private get provider(): ethers.JsonRpcProvider {
+        if (!this._provider) {
+            const rpcUrl = SECRETS.SEPOLIA_RPC_URL;
+            console.log(`[PriceService] Creating provider with RPC: ${rpcUrl ? rpcUrl.substring(0, 40) + "..." : "⚠️ MISSING!"}`);
+            this._provider = new ethers.JsonRpcProvider(rpcUrl);
+        }
+        return this._provider;
     }
 
     async getLatestPrice(pair: string): Promise<PriceData> {

@@ -15,18 +15,37 @@ export interface UserPosition {
 }
 
 export class AaveService {
-    private provider: ethers.JsonRpcProvider;
-    private pool: ethers.Contract;
-    private dataProvider: ethers.Contract;
+    // ✅ FIX: Lazy provider — created on first use, AFTER .env is fully loaded
+    private _provider: ethers.JsonRpcProvider | null = null;
+    private _pool: ethers.Contract | null = null;
+    private _dataProvider: ethers.Contract | null = null;
 
-    constructor() {
-        this.provider = new ethers.JsonRpcProvider(SECRETS.SEPOLIA_RPC_URL);
-        this.pool = new ethers.Contract(CONTRACT_ADDRESSES.AAVE_V3_POOL, AAVE_POOL_ABI, this.provider);
-        this.dataProvider = new ethers.Contract(
-            CONTRACT_ADDRESSES.AAVE_V3_DATA_PROVIDER,
-            AAVE_DATA_PROVIDER_ABI,
-            this.provider
-        );
+    // ✅ Getter ensures provider is always created with the correct RPC URL
+    private get provider(): ethers.JsonRpcProvider {
+        if (!this._provider) {
+            const rpcUrl = SECRETS.SEPOLIA_RPC_URL;
+            console.log(`[AaveService] Creating provider with RPC: ${rpcUrl ? rpcUrl.substring(0, 40) + "..." : "⚠️ MISSING!"}`);
+            this._provider = new ethers.JsonRpcProvider(rpcUrl);
+        }
+        return this._provider;
+    }
+
+    private get pool(): ethers.Contract {
+        if (!this._pool) {
+            this._pool = new ethers.Contract(CONTRACT_ADDRESSES.AAVE_V3_POOL, AAVE_POOL_ABI, this.provider);
+        }
+        return this._pool;
+    }
+
+    private get dataProvider(): ethers.Contract {
+        if (!this._dataProvider) {
+            this._dataProvider = new ethers.Contract(
+                CONTRACT_ADDRESSES.AAVE_V3_DATA_PROVIDER,
+                AAVE_DATA_PROVIDER_ABI,
+                this.provider
+            );
+        }
+        return this._dataProvider;
     }
 
     async getUserPosition(address: string): Promise<UserPosition> {
