@@ -11,7 +11,8 @@ export interface PriceData {
     source: "blockchain" | "fallback";
 }
 
-const PRICE_FEEDS: Record<string, string> = {
+// ✅ Only include feeds that have a valid address (some may not exist on Sepolia)
+const ALL_PRICE_FEEDS: Record<string, string> = {
     "ETH/USD": CONTRACT_ADDRESSES.CHAINLINK_ETH_USD,
     "USDC/USD": CONTRACT_ADDRESSES.CHAINLINK_USDC_USD,
     "DAI/USD": CONTRACT_ADDRESSES.CHAINLINK_DAI_USD,
@@ -19,6 +20,9 @@ const PRICE_FEEDS: Record<string, string> = {
     "WBTC/USD": CONTRACT_ADDRESSES.CHAINLINK_WBTC_USD,
     "AAVE/USD": CONTRACT_ADDRESSES.CHAINLINK_AAVE_USD,
 };
+const PRICE_FEEDS: Record<string, string> = Object.fromEntries(
+    Object.entries(ALL_PRICE_FEEDS).filter(([, addr]) => addr && addr.length === 42)
+);
 
 export class PriceService {
     // ✅ FIX: Lazy provider — created on first use, AFTER .env is fully loaded

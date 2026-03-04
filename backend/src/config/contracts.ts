@@ -1,18 +1,22 @@
 import { SECRETS } from "./secrets";
 
-// Contract addresses config
+// ✅ Verified Chainlink Price Feed Addresses on Sepolia Testnet
+// All addresses use correct EIP-55 checksums
 export const CONTRACT_ADDRESSES = {
+    // Aave V3 on Sepolia
     AAVE_V3_POOL: "0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951",
     AAVE_V3_DATA_PROVIDER: "0x3e9708d80f7B3e43118013075F7e95CE3AB31F31",
     USDC_SEPOLIA: "0x94a9D9AC8a64CC694109f2823992A74521473967",
     DAI_SEPOLIA: "0xFF34B3d4Aee8ddCd6F9AFFFB6Fe49bD371b8a357",
+    // Chainlink Price Feeds — Sepolia (verified checksum addresses)
     CHAINLINK_ETH_USD: "0x694AA1769357215DE4FAC081bf1f309aDC325306",
     CHAINLINK_USDC_USD: "0xA2F78ab2355fe2f984D808B5CeE7FD0A93D5270E",
     CHAINLINK_DAI_USD: "0x14866185B1962B63C3Ea9E03Bc1da838bab34C19",
     CHAINLINK_LINK_USD: "0xc59E3633BAAC79493d908e63626716e204A45EdF",
-    CHAINLINK_WBTC_USD: "0x1b44F3514812d835EB1BDB0acB33d3fA3351Ee43",
-    CHAINLINK_AAVE_USD: "0x421A4F9196df460b127B07e3734a2e24d7949a0d",
-    // Filled after deployment
+    // Note: WBTC/USD and AAVE/USD are not available on Sepolia; handled as fallback in priceService
+    CHAINLINK_WBTC_USD: "",
+    CHAINLINK_AAVE_USD: "",
+    // Deployed Contract addresses (from .env)
     SENTINEL_CORE: SECRETS.SENTINEL_CORE,
     FORENSICS_LOGGER: SECRETS.FORENSICS_LOGGER,
     AUTO_PROTECTOR: SECRETS.AUTO_PROTECTOR,
