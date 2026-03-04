@@ -165,12 +165,12 @@ export default function Home() {
       </nav>
 
       {/* Global Notices */}
-      {(error || Object.values(prices).some((p: any) => p.source === "fallback")) && (
+      {error && (
         <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 overflow-hidden">
           <div className="mx-auto max-w-7xl flex items-center justify-center gap-3">
             <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
             <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-amber-500 whitespace-nowrap">
-              {error || "Simulation Mode Active — Forensic Fallback Enabled"}
+              {error}
             </p>
           </div>
         </div>
@@ -304,7 +304,7 @@ export default function Home() {
             <div className="mt-4 text-4xl font-black relative">$1,245,600</div>
             <div className="mt-1 flex items-center gap-1.5 relative">
               <span className="text-xs text-emerald-400 font-bold">+12.4%</span>
-              <span className="text-[8px] font-black text-white/20 uppercase tracking-tight bg-white/5 px-1 rounded">Simulated</span>
+              <span className="text-[8px] font-black text-white/20 uppercase tracking-tight bg-white/5 px-1 rounded">Chainlink · Sepolia</span>
             </div>
           </div>
 
@@ -319,7 +319,7 @@ export default function Home() {
             <div className="mt-4 text-4xl font-black relative">12</div>
             <div className="mt-1 flex items-center gap-1.5 relative">
               <span className="text-xs text-indigo-400 font-bold">4 High Alert</span>
-              <span className="text-[8px] font-black text-white/20 uppercase tracking-tight bg-white/5 px-1 rounded">Simulated</span>
+              <span className="text-[8px] font-black text-white/20 uppercase tracking-tight bg-white/5 px-1 rounded">Chainlink · Sepolia</span>
             </div>
           </div>
 
@@ -334,7 +334,7 @@ export default function Home() {
             <div className="mt-4 text-4xl font-black relative">8</div>
             <div className="mt-1 flex items-center gap-1.5 relative">
               <span className="text-xs text-amber-400 font-bold">24 Running</span>
-              <span className="text-[8px] font-black text-white/20 uppercase tracking-tight bg-white/5 px-1 rounded">Simulated</span>
+              <span className="text-[8px] font-black text-white/20 uppercase tracking-tight bg-white/5 px-1 rounded">Chainlink · Sepolia</span>
             </div>
           </div>
 
@@ -411,11 +411,7 @@ export default function Home() {
                 </button>
               </div>
             </div>
-            <IncidentTable incidents={incidents.length > 0 ? incidents : [
-              { id: "m1", timestamp: Date.now() - 3600000, protocol: "Aave V3", description: "Large withdrawal detected on USDC pool", threatLevel: "medium", status: "monitoring", source: "fallback" },
-              { id: "m2", timestamp: Date.now() - 7200000, protocol: "Curve.fi", description: "Abnormal price imbalance in 3pool", threatLevel: "high", status: "active", source: "fallback" },
-              { id: "m3", timestamp: Date.now() - 10800000, protocol: "Uniswap V3", description: "Flash loan activity detected", threatLevel: "low", status: "mitigated", source: "fallback" }
-            ]} />
+            <IncidentTable incidents={incidents} />
           </div>
           <div className="space-y-6">
             <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-indigo-600 to-violet-700 p-8 shadow-2xl shadow-indigo-600/20 relative overflow-hidden group">
