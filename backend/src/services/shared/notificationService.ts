@@ -2,86 +2,86 @@ import sgMail from "@sendgrid/mail";
 import { SECRETS } from "../../config/secrets";
 
 interface AlertData {
-    userAddress: string;
-    healthFactor: string;
-    collateralUSD: string;
-    debtUSD: string;
-    riskLevel: string;
-    txHash?: string;
+  userAddress: string;
+  healthFactor: string;
+  collateralUSD: string;
+  debtUSD: string;
+  riskLevel: string;
+  txHash?: string;
 }
 
 export class NotificationService {
-    constructor() {
-        if (SECRETS.SENDGRID_API_KEY) {
-            sgMail.setApiKey(SECRETS.SENDGRID_API_KEY);
-        }
+  constructor() {
+    if (SECRETS.SENDGRID_API_KEY) {
+      sgMail.setApiKey(SECRETS.SENDGRID_API_KEY);
     }
+  }
 
-    private getRiskEmoji(level: string): string {
-        const emojis: Record<string, string> = {
-            safe: "🟢",
-            warning: "🟡",
-            danger: "🟠",
-            critical: "🔴",
-        };
-        return emojis[level] || "⚪";
-    }
+  private getRiskEmoji(level: string): string {
+    const emojis: Record<string, string> = {
+      safe: "🟢",
+      warning: "🟡",
+      danger: "🟠",
+      critical: "🔴",
+    };
+    return emojis[level] || "⚪";
+  }
 
-    async sendLiquidationAlert(email: string, data: AlertData): Promise<void> {
-        const emoji = this.getRiskEmoji(data.riskLevel);
-        const subject = `${emoji} DeFi-Sentinel: Position at Risk — Health Factor ${data.healthFactor}`;
+  async sendLiquidationAlert(email: string, data: AlertData): Promise<void> {
+    const emoji = this.getRiskEmoji(data.riskLevel);
+    const subject = `${emoji} DeFi-Sentinel: Position at Risk — Health Factor ${data.healthFactor}`;
 
-        // Email
-        if (email && (process.env.SENDGRID_API_KEY || SECRETS.SENDGRID_API_KEY)) {
-            try {
-                await sgMail.send({
-                    to: email,
-                    from: process.env.SENDGRID_FROM_EMAIL || "alerts@defi-sentinel.app",
-                    subject,
-                    html: this.buildLiquidationEmailHTML(data),
-                });
-                console.log(`Alert email sent to ${email}`);
-            } catch (err) {
-                console.error("SendGrid email error:", err);
-            }
-        }
-    }
-
-    async sendProtectionExecuted(email: string, data: AlertData & { amount: string }): Promise<void> {
-        const subject = `✅ DeFi-Sentinel: Auto-Protection Executed for Your Position`;
-
-        if (email && (process.env.SENDGRID_API_KEY || SECRETS.SENDGRID_API_KEY)) {
-            try {
-                await sgMail.send({
-                    to: email,
-                    from: process.env.SENDGRID_FROM_EMAIL || "alerts@defi-sentinel.app",
-                    subject,
-                    html: this.buildProtectionEmailHTML(data),
-                });
-                console.log(`Protection email sent to ${email}`);
-            } catch (err) {
-                console.error("SendGrid error:", err);
-            }
-        }
-    }
-
-
-    async sendProtocolAlert(email: string, data: { protocol: string; threatLevel: number; description: string }): Promise<void> {
-        if (!email || !process.env.SENDGRID_API_KEY) return;
+    // Email
+    if (email && SECRETS.SENDGRID_API_KEY) {
+      try {
         await sgMail.send({
-            to: email,
-            from: process.env.SENDGRID_FROM_EMAIL || "alerts@defi-sentinel.app",
-            subject: `🚨 DeFi-Sentinel: Protocol Alert — Threat Level ${data.threatLevel}`,
-            html: `<h2>Protocol Alert</h2><p><strong>Protocol:</strong> ${data.protocol}</p><p><strong>Threat Level:</strong> ${data.threatLevel}/5</p><p>${data.description}</p>`,
+          to: email,
+          from: "alerts@defi-sentinel.app",
+          subject,
+          html: this.buildLiquidationEmailHTML(data),
         });
+        console.log(`Alert email sent to ${email}`);
+      } catch (err) {
+        console.error("SendGrid email error:", err);
+      }
     }
+  }
 
-    private buildLiquidationEmailHTML(data: AlertData): string {
-        const riskColor: Record<string, string> = {
-            safe: "#22c55e", warning: "#f59e0b", danger: "#f97316", critical: "#ef4444",
-        };
-        const color = riskColor[data.riskLevel] || "#6b7280";
-        return `
+  async sendProtectionExecuted(email: string, data: AlertData & { amount: string }): Promise<void> {
+    const subject = `✅ DeFi-Sentinel: Auto-Protection Executed for Your Position`;
+
+    if (email && SECRETS.SENDGRID_API_KEY) {
+      try {
+        await sgMail.send({
+          to: email,
+          from: "alerts@defi-sentinel.app",
+          subject,
+          html: this.buildProtectionEmailHTML(data),
+        });
+        console.log(`Protection email sent to ${email}`);
+      } catch (err) {
+        console.error("SendGrid error:", err);
+      }
+    }
+  }
+
+
+  async sendProtocolAlert(email: string, data: { protocol: string; threatLevel: number; description: string }): Promise<void> {
+    if (!email || !SECRETS.SENDGRID_API_KEY) return;
+    await sgMail.send({
+      to: email,
+      from: "alerts@defi-sentinel.app",
+      subject: `🚨 DeFi-Sentinel: Protocol Alert — Threat Level ${data.threatLevel}`,
+      html: `<h2>Protocol Alert</h2><p><strong>Protocol:</strong> ${data.protocol}</p><p><strong>Threat Level:</strong> ${data.threatLevel}/5</p><p>${data.description}</p>`,
+    });
+  }
+
+  private buildLiquidationEmailHTML(data: AlertData): string {
+    const riskColor: Record<string, string> = {
+      safe: "#22c55e", warning: "#f59e0b", danger: "#f97316", critical: "#ef4444",
+    };
+    const color = riskColor[data.riskLevel] || "#6b7280";
+    return `
       <!DOCTYPE html>
       <html>
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f1a; color: #e2e8f0; padding: 40px;">
@@ -107,10 +107,10 @@ export class NotificationService {
       </body>
       </html>
     `;
-    }
+  }
 
-    private buildProtectionEmailHTML(data: AlertData & { amount: string }): string {
-        return `
+  private buildProtectionEmailHTML(data: AlertData & { amount: string }): string {
+    return `
       <!DOCTYPE html>
       <html>
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f1a; color: #e2e8f0; padding: 40px;">
@@ -128,7 +128,7 @@ export class NotificationService {
       </body>
       </html>
     `;
-    }
+  }
 }
 
 export const notificationService = new NotificationService();

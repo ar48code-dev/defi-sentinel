@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import { CONTRACT_ADDRESSES } from "../../config/contracts";
+import { SECRETS } from "../../config/secrets";
 
 const SENTINEL_CORE_ABI = [
     "function updateThreatLevel(address protocol, uint8 level) external",
@@ -34,9 +35,9 @@ export class ProtocolService {
     private metrics: Map<string, ProtocolMetrics[]> = new Map();
 
     constructor() {
-        this.provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL);
+        this.provider = new ethers.JsonRpcProvider(SECRETS.SEPOLIA_RPC_URL);
 
-        let privateKey = process.env.PRIVATE_KEY || "";
+        let privateKey = SECRETS.PRIVATE_KEY;
         if (privateKey && !privateKey.startsWith("0x") && privateKey.length === 64) {
             privateKey = "0x" + privateKey;
         }
