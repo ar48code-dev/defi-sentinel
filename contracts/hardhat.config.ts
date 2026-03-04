@@ -2,7 +2,8 @@ import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import * as dotenv from "dotenv";
 
-dotenv.config();
+import path from "path";
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -17,7 +18,7 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {},
     sepolia: {
-      url: process.env.SEPOLIA_RPC_URL || "https://eth-sepolia.g.alchemy.com/v2/okxADEboayXHLzb7vd452",
+      url: process.env.SEPOLIA_RPC_URL || "",
       accounts: process.env.PRIVATE_KEY !== undefined && process.env.PRIVATE_KEY !== "YOUR_PRIVATE_KEY_HERE"
         ? [process.env.PRIVATE_KEY]
         : [],

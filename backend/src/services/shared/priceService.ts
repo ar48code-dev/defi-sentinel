@@ -16,6 +16,8 @@ const PRICE_FEEDS: Record<string, string> = {
     "USDC/USD": CONTRACT_ADDRESSES.CHAINLINK_USDC_USD,
     "DAI/USD": CONTRACT_ADDRESSES.CHAINLINK_DAI_USD,
     "LINK/USD": CONTRACT_ADDRESSES.CHAINLINK_LINK_USD,
+    "WBTC/USD": CONTRACT_ADDRESSES.CHAINLINK_WBTC_USD,
+    "AAVE/USD": CONTRACT_ADDRESSES.CHAINLINK_AAVE_USD,
 };
 
 export class PriceService {
@@ -63,7 +65,9 @@ export class PriceService {
                 "ETH/USD": 2845.42,
                 "USDC/USD": 1.00,
                 "DAI/USD": 1.001,
-                "LINK/USD": 18.24
+                "LINK/USD": 18.24,
+                "WBTC/USD": 62500.00,
+                "AAVE/USD": 115.30
             };
             return {
                 pair,
