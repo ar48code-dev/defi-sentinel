@@ -1,11 +1,12 @@
-import "dotenv/config";
+// ✅ SECRETS handles dotenv loading via absolute path (import.meta.url) — no dotenv needed here
+import { SECRETS } from "./config/secrets.js";
 import express from "express";
 import cors from "cors";
 import { priceService } from "./services/shared/priceService.js";
 import userRoutes from "./routes/user.routes.js";
 import protocolRoutes from "./routes/protocol.routes.js";
 import statusRoutes from "./routes/status.routes.js";
-import { SECRETS } from "./config/secrets";
+
 
 const app = express();
 const PORT = process.env.PORT || 3001;
