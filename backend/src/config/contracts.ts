@@ -1,4 +1,4 @@
-import { SECRETS } from "./secrets";
+import { SECRETS } from "./secrets.js";
 
 // ✅ Verified Chainlink Price Feed Addresses on Sepolia Testnet
 // All addresses use correct EIP-55 checksums

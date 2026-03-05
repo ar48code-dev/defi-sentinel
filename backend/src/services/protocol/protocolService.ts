@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
-import { CONTRACT_ADDRESSES } from "../../config/contracts";
-import { SECRETS } from "../../config/secrets";
+import { CONTRACT_ADDRESSES } from "../../config/contracts.js";
+import { RPC_URLS, SECRETS } from "../../config/secrets.js";
 
 const SENTINEL_CORE_ABI = [
     "function updateThreatLevel(address protocol, uint8 level) external",
@@ -36,11 +36,11 @@ export class ProtocolService {
     private _initialized = false;
     private metrics: Map<string, ProtocolMetrics[]> = new Map();
 
-    // ✅ Lazy getter: provider is created only when first needed
+    // ✅ Lazy getter: uses public Sepolia RPC (no API key needed)
     private get provider(): ethers.JsonRpcProvider {
         if (!this._provider) {
-            const rpcUrl = SECRETS.SEPOLIA_RPC_URL;
-            console.log(`[ProtocolService] Creating provider with RPC: ${rpcUrl ? rpcUrl.substring(0, 40) + "..." : "⚠️ MISSING!"}`);
+            const rpcUrl = RPC_URLS[0]; // publicnode.com — always free
+            console.log(`[ProtocolService] Using RPC: ${rpcUrl.substring(0, 50)}`);
             this._provider = new ethers.JsonRpcProvider(rpcUrl);
         }
         return this._provider;

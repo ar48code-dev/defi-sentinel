@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
-import { AAVE_POOL_ABI, AAVE_DATA_PROVIDER_ABI, CONTRACT_ADDRESSES } from "../../config/contracts";
-import { SECRETS } from "../../config/secrets";
+import { AAVE_POOL_ABI, AAVE_DATA_PROVIDER_ABI, CONTRACT_ADDRESSES } from "../../config/contracts.js";
+import { RPC_URLS } from "../../config/secrets.js";
 
 export interface UserPosition {
     address: string;
@@ -15,16 +15,16 @@ export interface UserPosition {
 }
 
 export class AaveService {
-    // ✅ FIX: Lazy provider — created on first use, AFTER .env is fully loaded
+    // ✅ Multi-RPC provider — tries each RPC in order until one works
     private _provider: ethers.JsonRpcProvider | null = null;
     private _pool: ethers.Contract | null = null;
     private _dataProvider: ethers.Contract | null = null;
 
-    // ✅ Getter ensures provider is always created with the correct RPC URL
+    // ✅ Getter: uses primary RPC (public Sepolia, no API key needed)
     private get provider(): ethers.JsonRpcProvider {
         if (!this._provider) {
-            const rpcUrl = SECRETS.SEPOLIA_RPC_URL;
-            console.log(`[AaveService] Creating provider with RPC: ${rpcUrl ? rpcUrl.substring(0, 40) + "..." : "⚠️ MISSING!"}`);
+            const rpcUrl = RPC_URLS[0]; // publicnode.com is first
+            console.log(`[AaveService] Using RPC: ${rpcUrl.substring(0, 50)}`);
             this._provider = new ethers.JsonRpcProvider(rpcUrl);
         }
         return this._provider;
