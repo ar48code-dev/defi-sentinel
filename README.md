@@ -52,17 +52,19 @@ cd defi-sentinel
 chmod +x *.sh
 ./start.sh
 ```
-*`start.sh` is intelligent: it will automatically install dependencies, check your `.env`, start both servers, and **open the dashboard in your browser**.*
+*`start.sh` automatically installs dependencies, starts both the backend and frontend, and opens the dashboard in your browser.*
+
+> **✅ Zero configuration needed.** Real Sepolia RPC credentials and deployed contract addresses are built directly into the app. You will see **live Chainlink price feeds and real Aave data** immediately upon startup — no `.env` editing required.
 
 ---
 
-### 1b. Configuration (2 Ways)
+### 1b. Optional: Custom Configuration
 
-**Option A: Quick Web Config (Recommended for Demo)**
-Once the dashboard opens, click the **Settings (⚙️)** icon in the top right. You can paste your keys directly into the UI. These will be applied to the current session immediately WITHOUT editing files.
+**Option A: Quick Web Config**
+Once the dashboard opens, click the **Settings (⚙️)** icon in the top right. You can paste your own API keys directly into the UI. These are applied immediately without editing any files.
 
-**Option B: Manual .env**  
-Open the `.env` file and add your keys:
+**Option B: Edit the `.env` file**
+You can also create/edit a `.env` file in the project root to override any built-in credentials:
 ```env
 SEPOLIA_RPC_URL=your_alchemy_url
 PRIVATE_KEY=your_wallet_private_key
@@ -89,9 +91,9 @@ cd frontend && npm install && npm run dev
 
 We understand that judges often have limited time. To ensure you can experience the **full power** of DeFi-Sentinel immediately:
 
-- **✅ No API Keys Required**: The app comes with **pre-configured fallback credentials** for Sepolia RPC, Chainlink Feeds, and Notification services.
-- **✅ Real Blockchain Data**: Unlike other projects that show static mock data, DeFi-Sentinel displays **real live prices** from Chainlink and **real protocol status** from Aave immediately upon startup.
-- **✅ Scenario 1: Sarah's Story**: Connect your MetaMask to see a simulated $10k position. You can use the **Health Factor Slider** to set protection thresholds and test the **"Deposit Risk-Free"** button to trigger a real MetaMask USDC deposit to our `SentinelVault`.
+- **✅ Real Credentials Built-In**: The app ships with a working Alchemy Sepolia RPC URL, all deployed contract addresses, and SendGrid API key embedded as defaults. **Clone and run — that's it.**
+- **✅ Real Blockchain Data**: Unlike other projects that show static mock data, DeFi-Sentinel displays **real live prices** from Chainlink and **real protocol status** from Aave V3 immediately upon startup.
+- **✅ Scenario 1: Sarah's Story**: Connect your MetaMask to see a simulated $10k position. Use the **Health Factor Slider** to set protection thresholds and test the **"Deposit Risk-Free"** button to trigger a real MetaMask USDC deposit to our `SentinelVault`.
 - **✅ Scenario 2: Protocol Security**: Click **"Simulate Whale Anomaly"** to see how our AI scores a $50M threat level (4/5) and recommends immediate emergency actions.
 
 ---
