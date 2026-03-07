@@ -1,7 +1,26 @@
+/**
+ * DeFi Sentinel — PriceService (DROP-IN REPLACEMENT)
+ * 
+ * WHY THIS EXISTS:
+ *   The original file reads prices from Chainlink contracts via ethers.js RPC.
+ *   Problem 1: .env has SEPOLIA_RPC_URL=127.0.0.1:8545 → ECONNREFUSED
+ *   Problem 2: Chainlink contract addresses in contracts.ts are mainnet, not Sepolia
+ *   Result: Every price fetch fails → "FALLBACK" labels on dashboard
+ * 
+ * THIS FIX:
+ *   Keeps ALL the same exports (PriceData, PriceService class, priceService instance)
+ *   so NO other file needs changing. Just replace this one file.
+ *   Fetches real prices from CoinGecko (free, no API key) → Binance (backup)
+ * 
+ * NO CHANGES NEEDED TO: package.json, server.ts, routes, or any other file.
+ */
+
 import axios from "axios";
 
+// ─── Same interface as original — "pair" field kept identical ─────────────────
+
 export interface PriceData {
-    pair: string;          
+    pair: string;           // e.g. "ETH/USD"  ← same as original
     price: number;
     decimals: number;
     timestamp: number;
