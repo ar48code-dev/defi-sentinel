@@ -6,7 +6,7 @@ import { priceService } from "./services/shared/priceService.js";
 import userRoutes from "./routes/user.routes.js";
 import protocolRoutes from "./routes/protocol.routes.js";
 import statusRoutes from "./routes/status.routes.js";
-
+import protectionRouter from "./routes/protection.routes.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -32,6 +32,8 @@ app.use((req, res, next) => {
 app.use("/api/user", userRoutes);
 app.use("/api/protocol", protocolRoutes);
 app.use("/api/status", statusRoutes);
+app.use("/api/protect", protectionRouter);
+
 
 // ✅ Flat /api/prices endpoint (no redirect — direct response)
 app.get("/api/prices", async (req, res) => {
